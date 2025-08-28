@@ -3,10 +3,11 @@
 {% block content %}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400&display=swap" rel="stylesheet">
 
-<div class="container">
-    <h2 class="text-center my-5">Vote for 10 Candidates</h2>
+{# MODIFIED: Reduced horizontal padding to use more screen width #}
+<div class="container-fluid px-2 px-md-3"> 
+    <h2 class="text-center my-4">Vote for 10 Candidates</h2>
     
     <div class="progress-container">
         <span id="vote-count" class="vote-count">0/10</span>
@@ -34,14 +35,15 @@
 
         <div class="row">
             {% for candidate in candidates %}
-            <div class="col-md-2 col-sm-4 col-6 mb-4">
-                <div class="card candidate-card h-100 text-center" data-candidate="{{ candidate.candidate_key }}">
-                    <img src="{{ candidate.image.url }}" class="card-img-top rounded-circle mx-auto mt-3" alt="{{ candidate.name }}">
-                    <div class="card-body px-1 d-flex flex-column justify-content-center">
-                        <p class="card-title fw-medium mb-0">{{ candidate.name }}</p>
+            <div class="col-6 col-sm-4 col-md-1-7 mb-4"> 
+                <div class="card candidate-card h-100" data-candidate="{{ candidate.candidate_key }}">
+                    <img src="{{ candidate.image.url }}" class="card-img-top" alt="{{ candidate.name }}">
+                    <div class="card-body text-center p-2">
+                        <p class="card-title mb-0">{{ candidate.name }}</p>
                         <input class="form-check-input candidate-radio" type="checkbox" name="candidate_ids" id="candidate_{{ candidate.pk }}" value="{{ candidate.pk }}">
                     </div>
-                    <span class="tick-symbol" style="display:none;">✔️</span> </div>
+                    <span class="tick-symbol" style="display:none;">✔️</span>
+                </div>
             </div>
             {% endfor %}
         </div>
@@ -71,13 +73,38 @@
     body {
         font-family: 'Inter', sans-serif;
         background-color: #f8f9fa;
+        color: #343a40;
     }
 
-    .container h2 {
+    .container-fluid h2 {
         font-weight: 700;
+        color: #212529;
     }
 
-    /* Minimalist Card Styling */
+    /* Custom Bootstrap column for 7 items per row */
+    .col-md-1-7 {
+        flex: 0 0 auto;
+        width: 14.2857142857%; /* 100% / 7 */
+    }
+
+    @media (max-width: 767.98px) { /* Adjust for smaller screens like mobile */
+        .col-md-1-7 {
+            width: 50%; /* 2 per row */
+        }
+    }
+    @media (min-width: 768px) and (max-width: 991.98px) { /* Tablet landscape */
+        .col-md-1-7 {
+            width: 33.333333%; /* 3 per row */
+        }
+    }
+    @media (min-width: 992px) and (max-width: 1199.98px) { /* Small desktop */
+        .col-md-1-7 {
+            width: 20%; /* 5 per row */
+        }
+    }
+
+
+    /* Candidate Card Styling */
     .candidate-card {
         border: 2px solid #e9ecef;
         border-radius: 12px;
@@ -85,7 +112,7 @@
         transition: all 0.2s ease-in-out;
         cursor: pointer;
         position: relative;
-        overflow: hidden;
+        overflow: hidden; 
     }
     
     .candidate-card:hover {
@@ -99,16 +126,19 @@
         background-color: #f0fdf4;
     }
     
-    /* Circular Image */
+    /* Image Style - Larger and maintaining aspect ratio */
     .candidate-card .card-img-top {
-        width: 80px;
-        height: 80px;
-        object-fit: cover;
+        width: 100%;
+        aspect-ratio: 3 / 4; 
+        object-fit: cover;   
+        display: block; /* Remove extra space below image */
     }
     
     .candidate-card .card-title {
-        font-size: 0.9rem;
+        font-size: 0.95rem; /* Slightly larger non-bold font */
         color: #343a40;
+        line-height: 1.3;
+        padding: 0 5px; /* Added slight horizontal padding for text */
     }
     
     .form-check-input {
@@ -118,15 +148,22 @@
     /* Modern Tick Symbol */
     .tick-symbol {
         position: absolute;
-        top: 8px;
-        right: 8px;
-        font-size: 1.5rem;
+        top: 10px;
+        right: 10px;
+        font-size: 1.6rem; /* Slightly larger tick */
         color: #28a745;
-        display: none; /* Controlled by JS */
+        background-color: rgba(255, 255, 255, 0.8); /* More visible background */
+        border-radius: 50%;
+        width: 34px;
+        height: 34px;
+        display: none; 
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Subtle shadow for tick */
     }
     
     .candidate-card.selected .tick-symbol {
-        display: block;
+        display: flex;
     }
     
     /* Refined Progress Bar */
@@ -136,10 +173,11 @@
         position: sticky;
         top: 0;
         padding: 15px 10px;
-        background-color: rgba(255, 255, 255, 0.85);
+        background-color: rgba(255, 255, 255, 0.9); /* Slightly less transparent */
         backdrop-filter: blur(8px);
         z-index: 1000;
         border-bottom: 1px solid #e9ecef;
+        margin-bottom: 30px; /* Add space below progress bar */
     }
 
     .progress-segment {
@@ -157,16 +195,17 @@
     
     .vote-count {
         position: absolute;
-        top: -20px;
+        top: -25px; /* Adjusted position */
         left: 50%;
         transform: translateX(-50%);
         font-size: 0.9rem;
         font-weight: 500;
         color: #495057;
         background-color: #fff;
-        padding: 2px 10px;
-        border-radius: 12px;
-        border: 1px solid #e9ecef;
+        padding: 4px 12px; /* Increased padding */
+        border-radius: 16px; /* More rounded */
+        border: 1px solid #ced4da; /* Slightly stronger border */
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
     
     /* Modern Dialog Styles */
@@ -176,8 +215,8 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        display: none; /* Controlled by JS */
+        background-color: rgba(0, 0, 0, 0.6); /* Darker overlay */
+        display: none; 
         align-items: center;
         justify-content: center;
         z-index: 1001;
@@ -185,29 +224,32 @@
 
     .dialog-content {
         background-color: white;
-        padding: 2rem;
+        padding: 2.5rem; /* More padding */
         border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2); /* Stronger shadow */
         text-align: center;
-        max-width: 400px;
+        max-width: 450px; /* Slightly wider */
         margin: 1rem;
     }
 
     .dialog-content h4 {
         font-weight: 700;
         margin-bottom: 1rem;
+        color: #212529;
     }
 
     .dialog-content p {
         color: #6c757d;
-        margin-bottom: 1.5rem;
+        margin-bottom: 1.8rem; /* More space */
+        font-size: 1.05rem; /* Slightly larger text */
     }
 
     .dialog-content button {
-        margin: 0 5px;
-        padding: 0.6rem 1.2rem;
+        margin: 0 8px; /* More space between buttons */
+        padding: 0.7rem 1.4rem; /* Larger buttons */
         border-radius: 8px;
         font-weight: 500;
+        font-size: 1rem;
     }
 </style>
 
