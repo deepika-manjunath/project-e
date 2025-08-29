@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Council Election Results</title>
+  <style>
+    /* Vibrant color scheme with animations */
+    :root {
+      --primary-color: #e74c3c;
+      /* Vibrant red */
+      --secondary-color: #2980b9;
+      /* Deep blue */
+      --accent-color: #f1c40f;
+      /* Bright yellow */
+      --text-color: #34495e;
+      /* Slightly darker text */
+      --button-bg: #2ecc71;
+      /* Green button for action */
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+      color: var(--text-color);
+    }
+
+    .container {
+      width: 90%;
+      max-width: 900px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+      padding: 40px;
+      text-align: center;
+      opacity: 0;
+      animation: fadeInContainer 1s ease-in-out forwards;
+    }
+
+    h1 {
+      font-size: 32px;
+      color: var(--secondary-color);
+      margin-bottom: 20px;
+      font-weight: 700;
+      animation: slideDown 0.6s ease;
+    }
+
+    p {
+      font-size: 18px;
+      color: var(--text-color);
+      margin-bottom: 30px;
+      animation: fadeIn 0.6s ease-in-out;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 30px;
+      opacity: 0;
+      animation: fadeInTable 1s ease forwards;
+    }
+
+    th,
+    td {
+      padding: 20px;
+      text-align: left;
+      border-bottom: 2px solid #f2f2f2;
+      transition: background-color 0.3s ease;
+    }
+
+    th {
+      background-color: var(--accent-color);
+      color: #fff;
+      font-weight: 700;
+      animation: slideUp 0.6s ease;
+    }
+
+    td {
+      background-color: #fff;
+      color: var(--text-color);
+      animation: fadeIn 0.6s ease-in-out;
+    }
+
+    td:hover {
+      background-color: #f9fafb;
+    }
+
+    .highlight {
+      background-color: var(--primary-color);
+      color: #fff;
+      font-weight: 700;
+      animation: highlightAnim 1s ease-out;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeInTable {
+      0% {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideDown {
+      0% {
+        transform: translateY(-20px);
+      }
+
+      100% {
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideUp {
+      0% {
+        transform: translateY(20px);
+      }
+
+      100% {
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes highlightAnim {
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.05);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    @keyframes fadeInContainer {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .container {
+        padding: 30px;
+      }
+
+      h1 {
+        font-size: 28px;
+      }
+
+      p {
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Student Council Election Results</h1>
+    <p>Join us in congratulating the newly elected student council members!</p>
+    <button id="revealButton"
+      style="background-color: var(--button-bg); padding: 10px 20px; color: #fff; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; display: none;">Reveal
+      Results</button>
+    <table id="csvTable"></table>
+    <button id="downloadPdfButton"
+      style="background-color: var(--button-bg); padding: 10px 20px; color: #fff; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; display: none;">
+      Download as PDF
+    </button>
+  </div>
+
+  <script>
+    // Fetch and display the CSV file
+    window.onload = function () {
+      setTimeout(function () {
+        document.getElementById('revealButton').style.display = 'inline-block';
+      }, 1500); // Delay the reveal button
+
+      document.getElementById('revealButton').addEventListener('click', function () {
+        fetch('final_results.csv')
+          .then(response => response.text())
+          .then(data => {
+            displayCSV(data);
+            triggerConfettiForTop10();
+          })
+          .catch(error => {
+            console.error('Error reading CSV file:', error);
+          });
+
+        // Hide the reveal button after it's clicked
+        this.style.display = 'none';
+      });
+    };
+
+    function displayCSV(data) {
+      const rows = data.split("\n").map(row => row.split(","));
+      const table = document.getElementById("csvTable");
+      table.innerHTML = "";
+
+      // Insert the table header with a serial number column
+      const headerRow = document.createElement("tr");
+      const serialTh = document.createElement("th");
+      serialTh.textContent = "S.No";
+      headerRow.appendChild(serialTh);
+
+      rows[0].forEach(cell => {
+        const th = document.createElement("th");
+        th.textContent = cell.trim();
+        headerRow.appendChild(th);
+      });
+      table.appendChild(headerRow);
+
+      // Insert table rows with serial numbers and highlighting for the top 10
+      rows.slice(1).forEach((row, index) => {
+        const tr = document.createElement("tr");
+
+        // Serial number
+        const serialTd = document.createElement("td");
+        serialTd.textContent = index + 1;
+        tr.appendChild(serialTd);
+
+        row.forEach(cell => {
+          const td = document.createElement("td");
+          td.textContent = cell.trim();
+          tr.appendChild(td);
+        });
+
+        // Highlight the top 10 candidates
+        if (index < 10) {
+          tr.classList.add("highlight");
+        }
+
+        table.appendChild(tr);
+      });
+    }
+
+    // Function to trigger confetti animation for the top 10
+    function triggerConfettiForTop10() {
+      confetti({
+        particleCount: 150,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+    }
+
+  </script>
+
+  <script>
+    document.getElementById('revealButton').addEventListener('click', function () {
+      // Display the Download PDF button after table is revealed
+      setTimeout(function () {
+        document.getElementById('downloadPdfButton').style.display = 'inline-block';
+      }, 1000); // Delay for button display
+    });
+
+    document.getElementById('downloadPdfButton').addEventListener('click', function () {
+      const { jsPDF } = window.jspdf; // Access jsPDF
+      const doc = new jsPDF();
+
+      // Capture the table element
+      const table = document.getElementById('csvTable');
+
+      // Auto-table plugin for table conversion
+      doc.autoTable({
+        html: table, // Use the table directly
+        startY: 20,
+        margin: { top: 10 },
+        styles: { font: 'helvetica', fontSize: 10 },
+        headStyles: { fillColor: [41, 128, 185] } // Deep blue for header
+      });
+
+      // Add title to PDF
+      doc.setFontSize(16);
+      doc.setTextColor(52, 73, 94); // Text color
+      doc.text('Student Council Election Results', 105, 15, { align: 'center' });
+
+      // Save the PDF
+      doc.save('Election_Results.pdf');
+    });
+  </script>
+
+  <!-- Include the confetti library -->
+  <!-- Include jsPDF Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+
+  <!-- Include jsPDF AutoTable Plugin -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+</body>
+
+</html>
